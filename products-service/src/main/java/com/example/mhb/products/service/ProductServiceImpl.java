@@ -21,7 +21,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product reserve(Product desiredProduct, UUID orderId) {
-        ProductEntity productEntity = productRepository.findById(desiredProduct.getId()).orElseThrow();
+        ProductEntity productEntity = productRepository.findById(desiredProduct.getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product not found with id: " + desiredProduct.getId()));
         if (desiredProduct.getQuantity() > productEntity.getQuantity()) {
             throw new ProductInsufficientQuantityException(productEntity.getId(), orderId);
         }
@@ -37,7 +39,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void cancelReservation(Product productToCancel, UUID orderId) {
-        ProductEntity productEntity = productRepository.findById(productToCancel.getId()).orElseThrow();
+        ProductEntity productEntity = productRepository.findById(productToCancel.getId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product not found with id: " + productToCancel.getId()));
         productEntity.setQuantity(productEntity.getQuantity() + productToCancel.getQuantity());
         productRepository.save(productEntity);
     }

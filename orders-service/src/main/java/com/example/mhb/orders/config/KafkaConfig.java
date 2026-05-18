@@ -17,6 +17,9 @@ public class KafkaConfig {
     private String productsCommandsTopicName;
     @Value("${payments.commands.topic.name}")
     private String paymentsCommandsTopicName;
+    @Value("${orders.commands.topic.name}")
+    private String ordersCommandsTopicName;
+
     private final static Integer TOTAL_REPLICATION_FACTOR=3;
     private final static Integer TOTAL_TOPIC_PARTITION=3;
 
@@ -44,6 +47,13 @@ public class KafkaConfig {
     @Bean
     NewTopic createPaymentsCommandsTopic() {
         return TopicBuilder.name(paymentsCommandsTopicName)
+                .partitions(TOTAL_TOPIC_PARTITION)
+                .replicas(TOTAL_REPLICATION_FACTOR)
+                .build();
+    }
+    @Bean
+    NewTopic createOrdersCommandsTopic(){
+        return TopicBuilder.name(ordersCommandsTopicName)
                 .partitions(TOTAL_TOPIC_PARTITION)
                 .replicas(TOTAL_REPLICATION_FACTOR)
                 .build();

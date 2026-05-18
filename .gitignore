@@ -75,6 +75,13 @@ nb-configuration.xml
 .DS_Store
 
 ##############################
+## Kafka
+##############################
+volumes/
+kafka-volumes/
+
+##############################
 ## Miscellaneous
 ##############################
 *.log
+*.jar.original
