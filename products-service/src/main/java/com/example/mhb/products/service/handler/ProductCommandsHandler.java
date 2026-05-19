@@ -1,8 +1,11 @@
 package com.example.mhb.products.service.handler;
 
 import com.example.mhb.core.dto.Product;
+import com.example.mhb.core.dto.commands.CancelProductReservationCommand;
+import com.example.mhb.core.dto.events.ProductReservationCancelledEvent;
 import com.example.mhb.core.dto.commands.ReserveProductCommand;
 import com.example.mhb.core.dto.events.ProductReservedEvent;
+import com.example.mhb.core.exceptions.ProductInsufficientQuantityException;
 import com.example.mhb.products.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +42,25 @@ public class ProductCommandsHandler {
             ProductReservedEvent productReservedEvent = new ProductReservedEvent(command.getOrderId(),
                     command.getProductId(), reservedProduct.getPrice(), command.getProductQuantity());
             kafkaTemplate.send(productEventsTopicName,productReservedEvent);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage(), e);
+        } catch (IllegalArgumentException | ProductInsufficientQuantityException e) {
+            // Business validation errors - don't retry, publish failure event immediately
+            logger.warn("Product reservation failed for order {}: {}", command.getOrderId(), e.getMessage());
             ProductReservationFailedEvent productReservationFailedEvent = new ProductReservationFailedEvent(command.getProductId(),
                     command.getProductQuantity(), command.getOrderId());
             kafkaTemplate.send(productEventsTopicName, productReservationFailedEvent);
+        } catch (Exception e) {
+            // Technical errors - rethrow to trigger Kafka retry mechanism
+            logger.error("Technical error processing product reservation for order {}", command.getOrderId(), e);
+            throw e;
         }
 
+    }
+    @KafkaHandler
+    public void handleCommand(@Payload CancelProductReservationCommand command){
+        Product product = new Product(command.getProductId(),command.getProductQuantity());
+        productService.cancelReservation(product,command.getOrderId());
+        ProductReservationCancelledEvent productReservationCancelledEvent =
+                new ProductReservationCancelledEvent(command.getProductId(), command.getOrderId());
+        kafkaTemplate.send(productEventsTopicName, productReservationCancelledEvent);
     }
 }

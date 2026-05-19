@@ -2,6 +2,8 @@ package com.example.mhb.payments.service;
 
 import com.example.mhb.core.dto.CreditCardProcessRequest;
 import com.example.mhb.core.exceptions.CreditCardProcessorUnavailableException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -14,7 +16,7 @@ import java.math.BigInteger;
 public class CreditCardProcessorRemoteServiceImpl implements CreditCardProcessorRemoteService {
     private final RestTemplate restTemplate;
     private final String ccpRemoteServiceUrl;
-
+    private Logger LOGGER = LoggerFactory.getLogger(CreditCardProcessorRemoteServiceImpl.class);
 
     public CreditCardProcessorRemoteServiceImpl(
             RestTemplate restTemplate,
@@ -31,7 +33,8 @@ public class CreditCardProcessorRemoteServiceImpl implements CreditCardProcessor
             var request = new CreditCardProcessRequest(cardNumber, paymentAmount);
             restTemplate.postForObject(ccpRemoteServiceUrl + "/ccp/process", request, CreditCardProcessRequest.class);
         } catch (ResourceAccessException e) {
-            throw new CreditCardProcessorUnavailableException(e);
+          //  throw new CreditCardProcessorUnavailableException(e);
+            LOGGER.error("{}/ccp/process is down!!", ccpRemoteServiceUrl);
         }
     }
 }
