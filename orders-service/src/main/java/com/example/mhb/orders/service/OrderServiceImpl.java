@@ -25,10 +25,9 @@ public class OrderServiceImpl implements OrderService {
     private final String ordersEventsTopicName;
 
     public OrderServiceImpl(OrderRepository orderRepository, KafkaTemplate<String, Object> kafkaTemplate,
-                            KafkaTemplate<String, Object> kafkaTemplate1,
                             @Value("${order.events.topic.name}") String ordersEventsTopicName) {
         this.orderRepository = orderRepository;
-        this.kafkaTemplate = kafkaTemplate1;
+        this.kafkaTemplate = kafkaTemplate;
         this.ordersEventsTopicName = ordersEventsTopicName;
     }
 
