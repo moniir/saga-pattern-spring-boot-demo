@@ -220,9 +220,9 @@ POST /products
 Content-Type: application/json
 
 {
-  "productName": "Sample Product",
-  "productPrice": 99.99,
-  "productQuantity": 100
+  "name": "Sample Product",
+  "price": 99.99,
+  "quantity": 100
 }
 ```
 
@@ -230,12 +230,12 @@ Content-Type: application/json
 
 #### Process Payment
 ```http
-POST /ccps/process
+POST /ccp/process
 Content-Type: application/json
 
 {
-  "cardNumber": "4532123456789012",
-  "amount": 199.98
+  "creditCardNumber": 4532123456789012,
+  "paymentAmount": 199.98
 }
 ```
 
@@ -340,9 +340,9 @@ Database names:
 curl -X POST http://localhost:8081/products \
   -H "Content-Type: application/json" \
   -d '{
-    "productName": "Laptop",
-    "productPrice": 999.99,
-    "productQuantity": 10
+    "name": "Laptop",
+    "price": 999.99,
+    "quantity": 10
   }'
 ```
 
